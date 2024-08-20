@@ -1,35 +1,85 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  // {task: "clean", done: false, id: 0}, {task: "cook", done: false, id: 1}
+
+  // Define structure of task object
+  interface Task {
+    task: string;
+    id: number;
+    done: boolean;
+  }
+
+  const [input, setInput] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Function to get the currently highest id
+  const highestId = () => {
+    return Math.max(...tasks.map((task) => task.id));
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Todo List</h1>
+      <form
+        className="todo-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setTasks([...tasks, { task: input, id: highestId() + 1, done: false }]);
+
+          // Clear the input
+          setInput("");
+          e.target.taskInput.value = "";
+        }}
+      >
+        <input
+          id="taskInput"
+          type="text"
+          placeholder="Add task"
+          required
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
+        />
+        <button type="submit">Add Task</button>
+      </form>
+
+      <ul className="todo-list">
+        {tasks.map((task, index) => (
+          // If task is done, add done class
+          <li className="todo-list__item" key={index}>
+            <p className={`todo-list__text ${task.done ? "done" : ""}`}>{task.task}</p>
+            <button
+              className="mark-done"
+              onClick={() => {
+                // If task is not done, mark done, otherwise mark undone
+                task.done = !task.done;
+                let newTasks = [...tasks];
+                newTasks.splice(index, 1, task);
+                // newTasks.filter(t => t.id === task.id);
+                setTasks([...newTasks]);
+              }}
+            >
+              Done
+            </button>
+            <button
+              className="delete-task"
+              onClick={() => {
+                // Remove task from tasks
+                tasks.splice(index, 1);
+
+                // Update tasks
+                setTasks([...tasks]);
+              }}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
