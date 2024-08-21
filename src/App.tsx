@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-
   // Define structure of task object
   interface Task {
     task: string;
@@ -32,9 +31,13 @@ function App() {
         className="todo-form"
         onSubmit={(e) => {
           e.preventDefault();
-          setTasks([...tasks, { task: input, id: highestId() + 1, done: false }]);
 
-          // Clear the input
+          // Functional update of tasks, as it depends on previous state
+          setTasks(
+            (tasks) => (tasks = [...tasks, { task: input, id: highestId() + 1, done: false }])
+          );
+
+          // Clear the input. Does not depend on previous state
           setInput("");
           e.target.taskInput.value = "";
         }}
@@ -65,7 +68,7 @@ function App() {
                 let newTasks = [...tasks];
                 newTasks.splice(index, 1, task);
                 // newTasks.filter(t => t.id === task.id);
-                setTasks([...newTasks]);
+                setTasks((tasks) => (tasks = [...newTasks]));
 
                 // Update the amount of tasks completed
                 setNumTasksDone(countDoneTasks(tasks));
@@ -80,7 +83,7 @@ function App() {
                 tasks.splice(index, 1);
 
                 // Update tasks & tasks completed
-                setTasks([...tasks]);
+                setTasks((tasks) => (tasks = [...tasks]));
                 setNumTasksDone(countDoneTasks(tasks));
               }}
             >
@@ -90,14 +93,18 @@ function App() {
         ))}
       </ul>
       <h4>Number of Tasks Done: {numTasksDone}</h4>
-      <button onClick={() => {
-        // Filter by tasks that aren't done
-        const newTasks = tasks.filter(task => !task.done);
+      <button
+        onClick={() => {
+          // Filter by tasks that aren't done
+          const newTasks = tasks.filter((task) => !task.done);
 
-        // Update tasks and numTasksDone
-        setTasks(newTasks);
-        setNumTasksDone(countDoneTasks(newTasks));
-      }}>Clear Done</button>
+          // Update tasks and numTasksDone
+          setTasks(newTasks);
+          setNumTasksDone(countDoneTasks(newTasks));
+        }}
+      >
+        Clear Done
+      </button>
     </>
   );
 }
