@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  // {task: "clean", done: false, id: 0}, {task: "cook", done: false, id: 1}
 
   // Define structure of task object
   interface Task {
@@ -13,10 +12,17 @@ function App() {
 
   const [input, setInput] = useState<string>("");
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [numTasksDone, setNumTasksDone] = useState<number>(0);
 
-  // Function to get the currently highest id
+  // Get the currently highest id
   const highestId = () => {
+    if (tasks.length <= 0) return 0;
     return Math.max(...tasks.map((task) => task.id));
+  };
+
+  // Count the number of done tasks
+  const countDoneTasks = (tasks: Task[]) => {
+    return tasks.filter((task) => task.done).length;
   };
 
   return (
@@ -48,17 +54,21 @@ function App() {
       <ul className="todo-list">
         {tasks.map((task, index) => (
           // If task is done, add done class
-          <li className="todo-list__item" key={index}>
-            <p className={`todo-list__text ${task.done ? "done" : ""}`}>{task.task}</p>
+          <li className={`todo-list__item ${task.done ? "done" : ""}`} key={index}>
+            <p className={`todo-list__text ${task.done ? "line-through" : ""}`}>{task.task}</p>
             <button
               className="mark-done"
               onClick={() => {
                 // If task is not done, mark done, otherwise mark undone
                 task.done = !task.done;
+
                 let newTasks = [...tasks];
                 newTasks.splice(index, 1, task);
                 // newTasks.filter(t => t.id === task.id);
                 setTasks([...newTasks]);
+
+                // Update the amount of tasks completed
+                setNumTasksDone(countDoneTasks(tasks));
               }}
             >
               Done
@@ -69,8 +79,9 @@ function App() {
                 // Remove task from tasks
                 tasks.splice(index, 1);
 
-                // Update tasks
+                // Update tasks & tasks completed
                 setTasks([...tasks]);
+                setNumTasksDone(countDoneTasks(tasks));
               }}
             >
               Delete
@@ -78,6 +89,15 @@ function App() {
           </li>
         ))}
       </ul>
+      <h4>Number of Tasks Done: {numTasksDone}</h4>
+      <button onClick={() => {
+        // Filter by tasks that aren't done
+        const newTasks = tasks.filter(task => !task.done);
+
+        // Update tasks and numTasksDone
+        setTasks(newTasks);
+        setNumTasksDone(countDoneTasks(newTasks));
+      }}>Clear Done</button>
     </>
   );
 }

@@ -5,8 +5,12 @@
   text-align: center;
 }
 
-.done {
+.line-through {
   text-decoration: line-through;
+}
+
+.done {
+  background-color: #15793b;
 }
 
 .todo-form {
